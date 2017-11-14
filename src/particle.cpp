@@ -13,11 +13,17 @@ void particle::resetForce(){
     frc.set(0, 0, 0);
 }
 
-void particle::addForce(float x, float y, float z){
-    frc.x = frc.x + x;
-    frc.y = frc.y + y;
-    frc.z = frc.z + z;
+void particle::addScatteredForce(){
+    frc.x = frc.x + scatterdForceX;
+    frc.y = frc.y + scatterdForceY;
+    frc.z = frc.z + scatterdForceZ;
     angle = angle + angleSpeed;
+}
+
+void particle::addRaindropForce(){
+    frc.x = frc.x + raindropForceX;
+    frc.y = frc.y + raindropForceY;
+    frc.z = frc.z + raindropForceZ;
 }
 
 void particle::addDampingForce(){
@@ -35,6 +41,7 @@ void particle::setInitialCondition(float px, float py, float pz, float vx, float
 void particle::update(){
     vel = vel + frc;
     pos = pos + vel;
+    cout << "X: " << vel.x << " Y: " << vel.y << " Z: " << vel.z << endl;
 }
 
 void particle::disappearOtherWords(){
@@ -45,7 +52,7 @@ void particle::draw(ofxFontStash * particleFont){
     ofPushMatrix();
     ofSetColor(fontColor, opacity);
     ofTranslate(pos.x, pos.y, pos.z);
-    ofRotate(angle, 0.15, 0.3, 0.5);
-    particleFont->draw(finalWord, particleFontSize, 0, 0);
+    ofRotate(angle, 0.015, 0.03, 0.05);
+    particleFont->drawBatch(finalWord, particleFontSize, 0, 0);
     ofPopMatrix();
 }

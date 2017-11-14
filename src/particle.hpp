@@ -21,7 +21,8 @@ public:
     particle();
     
     void resetForce();
-    void addForce(float x, float y, float z);
+    void addScatteredForce();
+    void addRaindropForce();
     void addDampingForce();
     void disappearOtherWords();
     void setInitialCondition(float px, float py, float pz, float vx, float vy, float vz);
@@ -35,6 +36,8 @@ public:
     float angle;
     float angleSpeed;
     float opacity;
+    float scatterdForceX, scatterdForceY, scatterdForceZ;
+     float raindropForceX, raindropForceY, raindropForceZ;
 };
 
 #endif /* particle_hpp */

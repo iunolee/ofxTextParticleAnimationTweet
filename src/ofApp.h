@@ -12,7 +12,7 @@ public:
     void setup();
     void update();
     void draw();
-    void eraseAll();
+    void eraseAllWordParticle();
     void initTweetDataProcessing();
     void initTextParticle();
 
@@ -29,16 +29,20 @@ public:
     void gotMessage(ofMessage msg);
     
     int fontSize;
+    float forceValue;
+    
     ofColor *colors;
 //    ofTrueTypeFont font;
     ofxFontStash font;
+    
     vector<particle> particles;
+    vector<particle> letterParticles;
 
     float fx,fy,fz;
     
     bool otherWordsDisapper;
     bool rainDrop;
-
+    bool scattered;
     
     vector<string> emotionKeywords;
     vector<string> joy;

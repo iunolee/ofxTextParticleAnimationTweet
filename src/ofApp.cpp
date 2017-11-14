@@ -3,7 +3,8 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     
-    fontSize = 25;
+    fontSize = 20;
+    forceValue = 0.005;
     
     //socket part
     isConnected = false;
@@ -16,7 +17,7 @@ void ofApp::setup(){
     
     // screen setup
     ofSetVerticalSync(true);
-    ofSetFrameRate(60);
+    ofSetFrameRate(30);
     ofBackground(255);
     
     
@@ -135,7 +136,7 @@ void ofApp::initTweetDataProcessing() {
             }
         }
         tweetTextFinal = accumulate(begin(tweetText), end(tweetText), tweetTextFinal);
-//        cout << tweetTextFinal << endl;
+        //        cout << tweetTextFinal << endl;
         cout<<"tweet data processing done"<<endl;
     }
     else
@@ -146,26 +147,18 @@ void ofApp::initTweetDataProcessing() {
 
 //--------------------------------------------------------------
 void ofApp::initTextParticle(){
-//     init text particle
+    /* init text particle */
     vector<string> letters;
     letters = ofSplitString(tweetTextFinal, " ");
     
-    //    for(int i=0; i<text.size(); i++) {
-    //        char s = text[i];
-    //        string singleLetter = ofToStritng(s);
-    //        letters.push_back(singleLetter);
-    //    }
+    font.setup("BEBAS___.ttf", 1.0, 1024, false, 0, 1);
     
-//    font.loadFont("BEBAS___.ttf", fontSize);
-//    font.load("BEBAS___.ttf",fontSize, true, false, true);
-    font.setup("BEBAS___.ttf", 1.0, 1024, false, 8, 1.5);
+    //    make word particle
     ofRectangle firstbbox = font.getBBox(letters[0], fontSize, 0, 0);
-
-//    float xPosition = -font.stringWidth(letters[0]);
-    float xPosition = -firstbbox.width;
-    float yPosition = 20;
-//    float fontHeight = font.stringHeight(letters[0]);
     float fontHeight = firstbbox.height;
+    
+    float xPosition = -firstbbox.width;
+    float yPosition = fontHeight/2;
     
     ofRectangle spacebbox = font.getBBox("s", fontSize, 0, 0);
     float space = spacebbox.width;
@@ -173,44 +166,89 @@ void ofApp::initTextParticle(){
     
     for (int i = 0; i < letters.size(); i++){
         ofRectangle currentbbox = font.getBBox(letters[i], fontSize, 0, 0);
-                float currentFontWidth = currentbbox.width;
-
-//        float currentFontWidth = font.stringWidth(letters[i]);
+        float currentFontWidth = currentbbox.width;
         particle myParticle;
         myParticle.setInitialCondition(xPosition,yPosition,0, 0, 0, 0);
         myParticle.particleFontSize = fontSize;
         myParticle.angle = 0;
-        myParticle.angleSpeed = ofRandom(-0.5, 0.5);
-        myParticle.damping = ofRandom(0.01, 0.04);
+//        myParticle.angleSpeed = ofRandom(-0.5, 0.5);
+        //        myParticle.damping = ofRandom(0.01, 0.04);
         myParticle.finalWord = letters[i];
         myParticle.opacity = 255;
-
+        
+        ofColor assignedColor;
         if(find(joy.begin(), joy.end(), letters[i]) != joy.end()) {
             myParticle.fontColor = colors[1];
+            assignedColor = colors[1];
         } else if(find(trust.begin(), trust.end(), letters[i]) != trust.end()) {
             myParticle.fontColor = colors[2];
+            assignedColor = colors[2];
         } else if(find(fear.begin(), fear.end(), letters[i]) != fear.end()) {
             myParticle.fontColor = colors[3];
+            assignedColor = colors[3];
         } else if(find(surprise.begin(), surprise.end(), letters[i]) != surprise.end()) {
             myParticle.fontColor = colors[4];
+            assignedColor = colors[4];
         } else if(find(sadness.begin(), sadness.end(), letters[i]) != sadness.end()) {
             myParticle.fontColor = colors[5];
+            assignedColor = colors[5];
         } else if(find(disgust.begin(), disgust.end(), letters[i])!= disgust.end()) {
             myParticle.fontColor = colors[6];
+            assignedColor = colors[6];
         } else if(find(anger.begin(), anger.end(), letters[i]) != anger.end()) {
             myParticle.fontColor = colors[7];
+            assignedColor = colors[7];
         } else if(find(anticipation.begin(), anticipation.end(), letters[i]) != anticipation.end()) {
             myParticle.fontColor = colors[8];
+            assignedColor = colors[8];
         } else {
             myParticle.fontColor = colors[0];
+            assignedColor = colors[0];
         }
         
+        
+        //        make letter particle
+        if(find(emotionKeywords.begin(), emotionKeywords.end(), letters[i]) != emotionKeywords.end()) {
+            
+            string currentLetter = letters[i];
+            
+            float xPositionLetter = xPosition;
+            float yPositionLetter = yPosition;
+            
+            for(int j=0; j<currentLetter.size(); j++) {
+                char s = currentLetter[j];
+                string singleLetter = ofToString(s);
+                ofRectangle letterbbox = font.getBBox(singleLetter, fontSize, 0, 0);
+                float currentLetterWidth = letterbbox.width;
+                particle letterParticle;
+                letterParticle.setInitialCondition(xPositionLetter,yPositionLetter,0, 0, 0, 0);
+                letterParticle.particleFontSize = fontSize;
+                letterParticle.angle = 0;
+                letterParticle.angleSpeed = ofRandom(-1.5, 1.5);
+                letterParticle.scatterdForceX = ofRandom(-forceValue, forceValue);
+                letterParticle.scatterdForceY = ofRandom(0, forceValue*2);
+                letterParticle.scatterdForceZ = ofRandom(-forceValue, forceValue);
+                letterParticle.raindropForceX = 0;
+                letterParticle.raindropForceY = ofRandom(forceValue*0.5, forceValue);
+                letterParticle.raindropForceZ = ofRandom(-forceValue*0.2, forceValue*0.2);
+                letterParticle.damping = ofRandom(forceValue*0.01, forceValue*0.05);
+                letterParticle.finalWord = singleLetter;
+                letterParticle.opacity = 255;
+                letterParticle.fontColor = assignedColor;
+                letterParticles.push_back(letterParticle);
+                
+                xPositionLetter = xPositionLetter + currentLetterWidth;
+            }
+        }
+        
+        //        position each word
         if(xPosition > ofGetWindowSize()[0]) {
             yPosition = yPosition + fontHeight * 1.2;
             xPosition = 0;
         } else {
             xPosition = xPosition + currentFontWidth + space;
         }
+        
         particles.push_back(myParticle);
     }
 }
@@ -219,43 +257,60 @@ void ofApp::initTextParticle(){
 
 
 void ofApp::update(){
-    for (int i = 0; i < particles.size(); i++){
-        particles[i].resetForce();
-        particles[i].addDampingForce();
-        particles[i].update();
-    }
+//    for (int i = 0; i < particles.size(); i++){
+//        particles[i].resetForce();
+//        particles[i].addDampingForce();
+//        particles[i].update();
+//    }
     
     if(otherWordsDisapper) {
         for (int i = 0; i < particles.size(); i++){
             if(find(emotionKeywords.begin(), emotionKeywords.end(), particles[i].finalWord) == emotionKeywords.end()) {
                 particles[i].disappearOtherWords();
-            }
-        }
-        
-        if(rainDrop) {
-            for (int i = 0; i < particles.size(); i++){
-                float fx = ofRandom(-0.01, -0.03);
-                float fy = ofRandom(0.001, 0.009);
-                float fz = ofRandom(0.001, 0.02);
-                particles[i].addForce(fx, fz, fz);
-                particles[i].update();
+                if(particles[i].opacity==0) {
+                    particles.erase(particles.begin()+i);
+                }
             }
         }
     }
+    
+    if(scattered) {
+        for (int i = 0; i < letterParticles.size(); i++){
+            letterParticles[i].resetForce();
+            letterParticles[i].addScatteredForce();
+            letterParticles[i].addDampingForce();
+//            letterParticles[i].addRaindropForce();
+            letterParticles[i].update();
+        }
+    }
+    
+    if(rainDrop) {
+        for (int i = 0; i < letterParticles.size(); i++){
+            letterParticles[i].resetForce();
+            letterParticles[i].addRaindropForce();
+            letterParticles[i].update();
+        }
+    }
 }
-
-
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    font.beginBatch();
     for (int i = 0; i < particles.size(); i++){
         particles[i].draw(&font);
     }
+    
+    if(scattered) {
+        for (int i = 0; i < letterParticles.size(); i++){
+            letterParticles[i].draw(&font);
+        }
+    }
+    font.endBatch();
 }
 
 //--------------------------------------------------------------
-void ofApp::eraseAll(){
-        particles.clear();
+void ofApp::eraseAllWordParticle(){
+    particles.clear();
 }
 
 //--------------------------------------------------------------
@@ -273,8 +328,9 @@ void ofApp::keyPressed(int key){
         rainDrop = !rainDrop;
     }
     if(key == 'e') {
-       eraseAll();
-       }
+        scattered = !scattered;
+        eraseAllWordParticle();
+    }
 }
 
 //--------------------------------------------------------------
