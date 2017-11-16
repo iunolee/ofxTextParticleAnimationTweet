@@ -22,7 +22,6 @@ public:
     
     void resetForce();
     void addScatteredForce();
-    void addRaindropForce();
     void addDampingForce();
     void disappearOtherWords();
     void setInitialCondition(float px, float py, float pz, float vx, float vy, float vz);

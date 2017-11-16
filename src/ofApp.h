@@ -15,7 +15,6 @@ public:
     void eraseAllWordParticle();
     void initTweetDataProcessing();
     void initTextParticle();
-
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y );
@@ -41,9 +40,9 @@ public:
     float fx,fy,fz;
     
     bool otherWordsDisapper;
-    bool rainDrop;
     bool scattered;
-    
+    bool showTweetRandomly;
+
     vector<string> emotionKeywords;
     vector<string> joy;
     vector<string> trust;
@@ -58,7 +57,6 @@ public:
     ofxJSONElement tweetData;
     vector<string> tweetText;
     string tweetTextFinal;
-
 
     //socket part
     ofxSocketIO socketIO;
@@ -76,6 +74,6 @@ public:
     std::string address;
     std::string status;
     
-    
+    int count;
 
 };

@@ -84,8 +84,12 @@ void ofApp::setup(){
     
     
     // set keycode
+    showTweetRandomly = false;
     otherWordsDisapper = false;
-    rainDrop = false;
+    scattered = false;
+    
+    // set count to visualize each word one by one
+    count = 0;
 }
 
 //--------------------------------------------------------------
@@ -143,6 +147,8 @@ void ofApp::initTweetDataProcessing() {
     {
         ofLogNotice("ofApp::setup")  << "Failed to parse JSON" << endl;
     }
+    
+    
 }
 
 //--------------------------------------------------------------
@@ -158,11 +164,11 @@ void ofApp::initTextParticle(){
     float fontHeight = firstbbox.height;
     
     float xPosition = -firstbbox.width;
-    float yPosition = fontHeight/2;
+    float yPosition = fontHeight;
     
     ofRectangle spacebbox = font.getBBox("s", fontSize, 0, 0);
     float space = spacebbox.width;
-    cout << letters.size() << endl;
+    //    cout << letters.size() << endl;
     
     for (int i = 0; i < letters.size(); i++){
         ofRectangle currentbbox = font.getBBox(letters[i], fontSize, 0, 0);
@@ -171,8 +177,6 @@ void ofApp::initTextParticle(){
         myParticle.setInitialCondition(xPosition,yPosition,0, 0, 0, 0);
         myParticle.particleFontSize = fontSize;
         myParticle.angle = 0;
-//        myParticle.angleSpeed = ofRandom(-0.5, 0.5);
-        //        myParticle.damping = ofRandom(0.01, 0.04);
         myParticle.finalWord = letters[i];
         myParticle.opacity = 255;
         
@@ -228,9 +232,6 @@ void ofApp::initTextParticle(){
                 letterParticle.scatterdForceX = ofRandom(-forceValue, forceValue);
                 letterParticle.scatterdForceY = ofRandom(0, forceValue*2);
                 letterParticle.scatterdForceZ = ofRandom(-forceValue, forceValue);
-                letterParticle.raindropForceX = 0;
-                letterParticle.raindropForceY = ofRandom(forceValue*0.5, forceValue);
-                letterParticle.raindropForceZ = ofRandom(-forceValue*0.2, forceValue*0.2);
                 letterParticle.damping = ofRandom(forceValue*0.01, forceValue*0.05);
                 letterParticle.finalWord = singleLetter;
                 letterParticle.opacity = 255;
@@ -257,18 +258,20 @@ void ofApp::initTextParticle(){
 
 
 void ofApp::update(){
-//    for (int i = 0; i < particles.size(); i++){
-//        particles[i].resetForce();
-//        particles[i].addDampingForce();
-//        particles[i].update();
-//    }
+    //    for (int i = 0; i < particles.size(); i++){
+    //        particles[i].resetForce();
+    //        particles[i].addDampingForce();
+    //        particles[i].update();
+    //    }
     
     if(otherWordsDisapper) {
         for (int i = 0; i < particles.size(); i++){
             if(find(emotionKeywords.begin(), emotionKeywords.end(), particles[i].finalWord) == emotionKeywords.end()) {
                 particles[i].disappearOtherWords();
-                if(particles[i].opacity==0) {
-                    particles.erase(particles.begin()+i);
+                if(particles[i].opacity < 0) {
+                    scattered = true;
+                    eraseAllWordParticle();
+//                    particles.erase(particles.begin()+i);
                 }
             }
         }
@@ -279,26 +282,27 @@ void ofApp::update(){
             letterParticles[i].resetForce();
             letterParticles[i].addScatteredForce();
             letterParticles[i].addDampingForce();
-//            letterParticles[i].addRaindropForce();
-            letterParticles[i].update();
-        }
-    }
-    
-    if(rainDrop) {
-        for (int i = 0; i < letterParticles.size(); i++){
-            letterParticles[i].resetForce();
-            letterParticles[i].addRaindropForce();
             letterParticles[i].update();
         }
     }
 }
 
 //--------------------------------------------------------------
+
+
 void ofApp::draw(){
+    ofBackground(255);
+    
     font.beginBatch();
-    for (int i = 0; i < particles.size(); i++){
-        particles[i].draw(&font);
-    }
+    
+    if(showTweetRandomly) {
+        for (int i = 0; i < count ; i++){
+            particles[i].draw(&font);
+        }
+            count = count + particles.size()/100;
+            if (count > particles.size()) {
+                count = particles.size(); }
+        }
     
     if(scattered) {
         for (int i = 0; i < letterParticles.size(); i++){
@@ -317,19 +321,15 @@ void ofApp::eraseAllWordParticle(){
 void ofApp::keyPressed(int key){
     if(key == 't') {
         initTweetDataProcessing();
-    }
-    if(key == 'p') {
+        ofSleepMillis(1000);
         initTextParticle();
+        ofSleepMillis(1500);
+        random_shuffle(particles.begin(), particles.end());
+        showTweetRandomly = true;
     }
+    
     if(key == 'd') {
-        otherWordsDisapper = !otherWordsDisapper;
-    }
-    if(key == 'r') {
-        rainDrop = !rainDrop;
-    }
-    if(key == 'e') {
-        scattered = !scattered;
-        eraseAllWordParticle();
+        otherWordsDisapper = true;
     }
 }
 

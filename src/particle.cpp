@@ -20,12 +20,6 @@ void particle::addScatteredForce(){
     angle = angle + angleSpeed;
 }
 
-void particle::addRaindropForce(){
-    frc.x = frc.x + raindropForceX;
-    frc.y = frc.y + raindropForceY;
-    frc.z = frc.z + raindropForceZ;
-}
-
 void particle::addDampingForce(){
     frc.x = frc.x - vel.x * damping;
     frc.y = frc.y - vel.y * damping;
@@ -41,7 +35,6 @@ void particle::setInitialCondition(float px, float py, float pz, float vx, float
 void particle::update(){
     vel = vel + frc;
     pos = pos + vel;
-    cout << "X: " << vel.x << " Y: " << vel.y << " Z: " << vel.z << endl;
 }
 
 void particle::disappearOtherWords(){
