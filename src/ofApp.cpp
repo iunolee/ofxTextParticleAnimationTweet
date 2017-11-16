@@ -15,62 +15,62 @@ void ofApp::setup(){
     ofAddListener(socketIO.connectionEvent, this, &ofApp::onConnection);
     
     
-    // screen setup
+    //screen setup
     ofSetVerticalSync(true);
     ofSetFrameRate(30);
     ofBackground(255);
     
-    
-    // set color list
+
+    //set color list
     colors = new ofColor[9];
     
-    // initial value
+    //initial value
     colors[0].r = 0;
     colors[0].g = 0;
     colors[0].b = 0;
     
-    // joy
+    //joy
     colors[1].r = 248;
     colors[1].g = 198;
     colors[1].b = 51;
     
-    // trust
+    //trust
     colors[2].r = 178;
     colors[2].g = 187;
     colors[2].b = 58;
     
-    // fear
+    //fear
     colors[3].r = 10;
     colors[3].g = 108;
     colors[3].b = 67;
     
-    // surprise
+    //surprise
     colors[4].r = 6;
     colors[4].g = 128;
     colors[4].b = 157;
     
-    // sadness
+    //sadness
     colors[5].r = 118;
     colors[5].g = 59;
     colors[5].b = 123;
     
-    // disgust
+    //disgust
     colors[6].r = 145;
     colors[6].g = 30;
     colors[6].b = 71;
     
-    // anger
+    //anger
     colors[7].r = 186;
     colors[7].g = 39;
     colors[7].b = 58;
     
-    // anticipation
+    //anticipation
     colors[8].r = 216;
     colors[8].g = 97;
     colors[8].b = 43;
     
     
-    // emotion list
+    //emotion list
     emotionKeywords = {"confused", "rejected", "helpless", "submissive", "insecure", "anxious", "hurt", "hostile", "angry", "selfish", "hateful", "critical", "tired", "bored", "lonely", "depressed", "ashamed", "guilty", "gloomy", "excited", "sensuous", "energetic", "cheerful", "creative", "aware", "proud", "respected", "appreciated", "important", "faithful", "nurturing", "trusting", "loving", "intimate", "thoughtful", "content", "curious", "interest", "expect", "amaze", "astonish", "distract", "bored", "dislike", "loath"};
     
     joy = {"excited", "sensuous", "energetic", "cheerful", "creative"};
@@ -83,12 +83,12 @@ void ofApp::setup(){
     anticipation = {"curious", "interest", "expect"};
     
     
-    // set keycode
+    //set boolean for scene change
     showTweetRandomly = false;
     otherWordsDisapper = false;
     scattered = false;
     
-    // set count to visualize each word one by one
+    //set count to visualize each word one by one
     count = 0;
 }
 
@@ -96,11 +96,12 @@ void ofApp::setup(){
 
 void ofApp::initTweetDataProcessing() {
     
-    // tweetData processingt
+    //processing tweet data
     bool parsingSuccessful = tweetData.open("tweetSearchData1113.json");
     
     if (parsingSuccessful)
     {
+        //get tweet according to audience selections of emotion
         for (int i=0; i < selectionPool.size(); i++) {
             string joySelection = joy[ofRandom(joy.size())];
             string trustSelection = trust[ofRandom(trust.size())];
@@ -139,27 +140,29 @@ void ofApp::initTweetDataProcessing() {
                 tweetText.push_back(temp);
             }
         }
+
+        //make set of tweet text into one string
         tweetTextFinal = accumulate(begin(tweetText), end(tweetText), tweetTextFinal);
-        //        cout << tweetTextFinal << endl;
         cout<<"tweet data processing done"<<endl;
     }
     else
     {
         ofLogNotice("ofApp::setup")  << "Failed to parse JSON" << endl;
     }
-    
-    
 }
 
 //--------------------------------------------------------------
 void ofApp::initTextParticle(){
     /* init text particle */
+    
+    //split tweet text into every words
     vector<string> letters;
     letters = ofSplitString(tweetTextFinal, " ");
-    
+
+    //load font
     font.setup("BEBAS___.ttf", 1.0, 1024, false, 0, 1);
     
-    //    make word particle
+    //make word particle with assigning attributes
     ofRectangle firstbbox = font.getBBox(letters[0], fontSize, 0, 0);
     float fontHeight = firstbbox.height;
     
@@ -168,7 +171,6 @@ void ofApp::initTextParticle(){
     
     ofRectangle spacebbox = font.getBBox("s", fontSize, 0, 0);
     float space = spacebbox.width;
-    //    cout << letters.size() << endl;
     
     for (int i = 0; i < letters.size(); i++){
         ofRectangle currentbbox = font.getBBox(letters[i], fontSize, 0, 0);
@@ -211,7 +213,7 @@ void ofApp::initTextParticle(){
         }
         
         
-        //        make letter particle
+        //make letter particle for dropping later
         if(find(emotionKeywords.begin(), emotionKeywords.end(), letters[i]) != emotionKeywords.end()) {
             
             string currentLetter = letters[i];
@@ -238,18 +240,18 @@ void ofApp::initTextParticle(){
                 letterParticle.fontColor = assignedColor;
                 letterParticles.push_back(letterParticle);
                 
+                //position each letter
                 xPositionLetter = xPositionLetter + currentLetterWidth;
             }
         }
         
-        //        position each word
+        //position each word
         if(xPosition > ofGetWindowSize()[0]) {
             yPosition = yPosition + fontHeight * 1.2;
             xPosition = 0;
         } else {
             xPosition = xPosition + currentFontWidth + space;
         }
-        
         particles.push_back(myParticle);
     }
 }
@@ -258,12 +260,8 @@ void ofApp::initTextParticle(){
 
 
 void ofApp::update(){
-    //    for (int i = 0; i < particles.size(); i++){
-    //        particles[i].resetForce();
-    //        particles[i].addDampingForce();
-    //        particles[i].update();
-    //    }
     
+    //make non emotion-related words dissapear
     if(otherWordsDisapper) {
         for (int i = 0; i < particles.size(); i++){
             if(find(emotionKeywords.begin(), emotionKeywords.end(), particles[i].finalWord) == emotionKeywords.end()) {
@@ -277,6 +275,7 @@ void ofApp::update(){
         }
     }
     
+    //add force to make emotion words scattered and dropped
     if(scattered) {
         for (int i = 0; i < letterParticles.size(); i++){
             letterParticles[i].resetForce();
@@ -295,6 +294,7 @@ void ofApp::draw(){
     
     font.beginBatch();
     
+    //words coming into screen
     if(showTweetRandomly) {
         for (int i = 0; i < count ; i++){
             particles[i].draw(&font);
@@ -304,21 +304,27 @@ void ofApp::draw(){
                 count = particles.size(); }
         }
     
+    //scattered and dropped
     if(scattered) {
         for (int i = 0; i < letterParticles.size(); i++){
             letterParticles[i].draw(&font);
         }
     }
+    
     font.endBatch();
 }
 
 //--------------------------------------------------------------
 void ofApp::eraseAllWordParticle(){
+    
+    //erase all words and leave only letters in emotion words to drop
     particles.clear();
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    
+    //tweet data processing -> delay -> make text particle -> delay -> appear on the screen
     if(key == 't') {
         initTweetDataProcessing();
         ofSleepMillis(1000);
@@ -328,6 +334,7 @@ void ofApp::keyPressed(int key){
         showTweetRandomly = true;
     }
     
+    //start disappearing -> scattered & dropped
     if(key == 'd') {
         otherWordsDisapper = true;
     }

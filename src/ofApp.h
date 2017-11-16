@@ -27,18 +27,18 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
     
+    //for particle
     int fontSize;
-    float forceValue;
-    
-    ofColor *colors;
-//    ofTrueTypeFont font;
     ofxFontStash font;
-    
+
+    ofColor *colors;
+
+    float forceValue;
+//    float fx,fy,fz;
+
     vector<particle> particles;
     vector<particle> letterParticles;
 
-    float fx,fy,fz;
-    
     bool otherWordsDisapper;
     bool scattered;
     bool showTweetRandomly;
@@ -58,7 +58,10 @@ public:
     vector<string> tweetText;
     string tweetTextFinal;
 
-    //socket part
+    int count;
+
+    
+    //for socket
     ofxSocketIO socketIO;
     
     bool isConnected;
@@ -74,6 +77,5 @@ public:
     std::string address;
     std::string status;
     
-    int count;
 
 };
