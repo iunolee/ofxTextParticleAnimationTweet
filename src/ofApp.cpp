@@ -2,11 +2,12 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    //screen setup
+    ofSetVerticalSync(true);
+    ofSetFrameRate(30);
+    ofBackground(0);
     
-    fontSize = 20;
-    forceValue = 0.005;
-    
-    //socket part
+    //socket setup
     isConnected = false;
     address = "http://67.205.153.66:9999";
     status = "not connected";
@@ -14,20 +15,30 @@ void ofApp::setup(){
     ofAddListener(socketIO.notifyEvent, this, &ofApp::gotEvent);
     ofAddListener(socketIO.connectionEvent, this, &ofApp::onConnection);
     
+    //set boolean for scene change
+    showTweetRandomly = false;
+    otherWordsDisapper = false;
+    scattered = false;
     
-    //screen setup
-    ofSetVerticalSync(true);
-    ofSetFrameRate(30);
-    ofBackground(255);
-    
+    //init basic setting for emotion colors & keyword
+    initSetting();
+}
 
+//--------------------------------------------------------------
+
+void ofApp::initSetting(){
+    
+    fontSize = 50;
+    forceValue = 0.005;
+    
+    
     //set color list
     colors = new ofColor[9];
     
     //initial value
-    colors[0].r = 0;
-    colors[0].g = 0;
-    colors[0].b = 0;
+    colors[0].r = 255;
+    colors[0].g = 255;
+    colors[0].b = 255;
     
     //joy
     colors[1].r = 248;
@@ -81,12 +92,7 @@ void ofApp::setup(){
     disgust = {"bored", "dislike", "loath"};
     anger = {"hurt", "hostile", "angry", "selfish", "hateful", "critical"};
     anticipation = {"curious", "interest", "expect"};
-    
-    
-    //set boolean for scene change
-    showTweetRandomly = false;
-    otherWordsDisapper = false;
-    scattered = false;
+
     
     //set count to visualize each word one by one
     count = 0;
@@ -160,14 +166,14 @@ void ofApp::initTextParticle(){
     letters = ofSplitString(tweetTextFinal, " ");
 
     //load font
-    font.setup("BEBAS___.ttf", 1.0, 1024, false, 0, 1);
+    font.setup("JennaSue.ttf", 1.0, 1024, false, 0, 1);
     
     //make word particle with assigning attributes
     ofRectangle firstbbox = font.getBBox(letters[0], fontSize, 0, 0);
     float fontHeight = firstbbox.height;
     
     float xPosition = -firstbbox.width;
-    float yPosition = fontHeight;
+    float yPosition = fontHeight*0.9;
     
     ofRectangle spacebbox = font.getBBox("s", fontSize, 0, 0);
     float space = spacebbox.width;
@@ -290,7 +296,7 @@ void ofApp::update(){
 
 
 void ofApp::draw(){
-    ofBackground(255);
+    ofBackground(0);
     
     font.beginBatch();
     

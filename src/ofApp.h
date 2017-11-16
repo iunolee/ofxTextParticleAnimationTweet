@@ -12,9 +12,6 @@ public:
     void setup();
     void update();
     void draw();
-    void eraseAllWordParticle();
-    void initTweetDataProcessing();
-    void initTextParticle();
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y );
@@ -24,6 +21,12 @@ public:
     void mouseEntered(int x, int y);
     void mouseExited(int x, int y);
     void windowResized(int w, int h);
+    
+    void initSetting();
+    void initTweetDataProcessing();
+    void initTextParticle();
+    void eraseAllWordParticle();
+
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
     
